@@ -8,6 +8,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Ordering.Application;
+using Ordering.Application.Contracts;
+using Ordering.Domain.Entities;
 using Ordering.Infrastructure.Persistence;
 using System;
 using System.Collections.Generic;
@@ -33,6 +35,12 @@ namespace Ordering.API
             //EF core
             services.AddDbContext<OrderContext>(options =>
             options.UseSqlServer(Configuration.GetConnectionString("OrderingConnectionString")));
+
+            //Repo
+            services.AddScoped(typeof(IAsyncRepository<>), typeof(AsyncRepository<>));
+
+            
+
 
             services.AddControllers();
             services.AddSwaggerGen(c =>

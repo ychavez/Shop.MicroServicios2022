@@ -2,10 +2,8 @@
 using MediatR;
 using Ordering.Application.Contracts;
 using Ordering.Domain.Entities;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -19,10 +17,11 @@ namespace Ordering.Application.Features.Orders.Queries.GetOrdersList
         public GetOrdersListHandler(IAsyncRepository<Order> repository, IMapper mapper)
              => (this.repository, this.mapper) = (repository, mapper);
 
-
-        public Task<List<OrdersViewModel>> Handle(GetOrdersListQuery request, CancellationToken cancellationToken)
+        public async Task<List<OrdersViewModel>> Handle(GetOrdersListQuery request, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            var ordersList = await repository.GetAsync(o => o.UserName == request.UserName);
+           
+            return mapper.Map<List<OrdersViewModel>>(ordersList);
         }
     }
 }
