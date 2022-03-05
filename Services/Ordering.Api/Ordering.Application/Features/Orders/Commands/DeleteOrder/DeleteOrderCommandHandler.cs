@@ -26,6 +26,7 @@ namespace Ordering.Application.Features.Orders.Commands.DeleteOrder
             if (orderToUpdate == null)
             {
                 logger.LogError("La orden no existe");
+                
             }
           
             await repository.DeleteAsync(orderToUpdate);
