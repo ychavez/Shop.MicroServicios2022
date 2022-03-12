@@ -25,6 +25,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - "CacheSettings__ConnectionString=basketdb:6379"
+      - "GrpcSettings__HostAddress=existence.grpc:5000"
     ports:
       - "8001:80"
     depends_on:
@@ -74,3 +75,19 @@ services:
     ports:
       - "8005:80"
 
+
+  existence.grpc:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=https://+:443;http://+:80
+    ports:
+      - "80"
+      - "443"
+    volumes:
+      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+
+  rabbitmq:
+    container_name: rabbitmq
+    ports:
+        - "5672:5672"
+        - "15672:15672"

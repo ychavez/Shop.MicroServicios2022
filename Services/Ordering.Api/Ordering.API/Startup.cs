@@ -1,23 +1,19 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Ordering.Application;
 using Ordering.Application.Contracts;
-using Ordering.Domain.Entities;
 using Ordering.Infrastructure.Persistence;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using MassTransit;
+using EventBus.Messages.Common;
+using Ordering.API.EventBusConsumet;
 
 namespace Ordering.API
 {
@@ -36,6 +32,32 @@ namespace Ordering.API
             services.AddApplicationServices();
 
             var key = Encoding.ASCII.GetBytes(Configuration.GetValue<string>("Identity:Key"));
+
+
+            //rabbitMq
+            services.AddMassTransit(config =>
+            {
+                config.AddConsumer<BasketCheckoutConsumer>();
+                config.UsingRabbitMq((ctx, cfg) =>
+                {
+                    cfg.Host(Configuration["EventBusSettings:HostAddress"]);
+
+                    cfg.ReceiveEndpoint(EventBusConstants.BasketCheckoutQueue, c =>
+                    {
+                        c.ConfigureConsumer<BasketCheckoutConsumer>(ctx);
+                    });
+                });
+
+            });
+
+            services.AddMassTransitHostedService();
+
+            services.AddScoped<BasketCheckoutConsumer>();
+
+
+            // Automapper
+            services.AddAutoMapper(typeof(Startup));
+
 
             //Autenticacion
             services.AddAuthentication(x =>

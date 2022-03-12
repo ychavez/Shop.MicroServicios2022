@@ -40,8 +40,18 @@ services:
       context: .
       dockerfile: Services/OcelotGateway/Dockerfile
 
+  existence.grpc:
+    image: ${DOCKER_REGISTRY-}existencegrpc
+    build:
+      context: .
+      dockerfile: Services/Existence.Grpc/Dockerfile
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+
 volumes:
   mongo_data:
+
 
 
 
