@@ -1,5 +1,6 @@
 ﻿using Basket.API.Entities;
 using Basket.API.Repositories;
+using Existence.Grpc.Protos;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
@@ -10,10 +11,13 @@ namespace Basket.API.Controllers
     public class BasketController : ControllerBase
     {
         private readonly IBasketRepository repository;
+        private readonly ExistenceService.ExistenceServiceClient existenceService;
 
-        public BasketController(IBasketRepository repository)
+        public BasketController(IBasketRepository repository, 
+            ExistenceService.ExistenceServiceClient existenceService )
         {
             this.repository = repository;
+            this.existenceService = existenceService;
         }
 
 
@@ -35,6 +39,15 @@ namespace Basket.API.Controllers
         [HttpPost]
         public async Task<ActionResult<ShoppingCart>> UpdateBasket([FromBody] ShoppingCart basket)
         {
+
+            foreach (var item in basket.Items)
+            {
+                if ((await existenceService.CheckExistenceAsync(new 
+                    ProductRequest { Id = item.ProductId })).ProductQty <= 0)
+                {
+                    throw new System.Exception("Producto sin existencia");
+                }
+            }
 
             return Ok(await repository.UpdateBasket(basket));
         }
