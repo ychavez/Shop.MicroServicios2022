@@ -33,13 +33,56 @@ namespace Account.Api.Controllers
             this.roleManager = roleManager;
         }
 
+        [HttpPost("Roles")]
+        public async Task<ActionResult> CreateRole(string role) 
+        {
+            //validar que el rol no exista ya en base de datos
+            var result = await roleManager.CreateAsync(new IdentityRole { Name = role });
+            return NoContent();
+        
+        }
+
+        [HttpPost("AddUserToRole")]
+        public async Task<ActionResult> AddUserToRole(string userName, string role) 
+        {
+
+            // validar que el usuario exista y que no este en el rol
+            var user = await userManager.FindByNameAsync(userName);
+            // validar que el rol exista
+            await userManager.AddToRoleAsync(user, role);
+
+            return NoContent();
+        
+        }
+
+        [HttpPost("Login")]
+        public async Task<ActionResult<UserDTO>> Login(LoginDTO loginDTO)
+        {
+            if (!await UserExists(loginDTO.UserName.ToLower()))
+                return Unauthorized();
+
+            var user = await userManager.
+                Users.SingleAsync(x => x.UserName.ToLower() == loginDTO.UserName.ToLower());
+
+            var result = await signInManager.CheckPasswordSignInAsync(user, loginDTO.Password, true);
+
+            if (!result.Succeeded)
+                return Unauthorized();
+
+            return new UserDTO
+            {
+                UserName = user.UserName,
+                Token = await GetToken(user)
+            };
+
+        }
 
         [HttpPost("register")]
         public async Task<ActionResult<UserDTO>> Register(RegisterDTO registerDTO)
         {
             if (await UserExists(registerDTO.UserName.ToLower()))
                 return BadRequest("el usuario ya existe");
-            
+
             var user = new ShopUser()
             {
                 UserName = registerDTO.UserName.ToLower(),
@@ -56,8 +99,8 @@ namespace Account.Api.Controllers
                 Token = await GetToken(user)
             };
 
-        
-    }
+
+        }
 
         private async Task<string> GetToken(ShopUser user)
         {
@@ -71,6 +114,7 @@ namespace Account.Api.Controllers
              new Claim(JwtRegisteredClaimNames.Jti,user.Id),
              new Claim(JwtRegisteredClaimNames.Iat,now.ToUniversalTime().ToString()),
              new Claim(JwtRegisteredClaimNames.Email,user.Email),
+
             };
 
             var roles = await userManager.GetRolesAsync(user);
