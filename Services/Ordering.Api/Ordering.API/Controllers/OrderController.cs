@@ -30,7 +30,7 @@ namespace Ordering.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,SuperAdmin")]
         public async Task<ActionResult> DeleteOrder(int id)
         {
             var command = new DeleteOrderCommand() { Id = id };

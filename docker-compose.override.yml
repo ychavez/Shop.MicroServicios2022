@@ -41,3 +41,27 @@ services:
       ACCEPT_EULA: "Y"
     ports:
     - "1433:1433"
+  
+  ordering.api:
+    container_name: ordering.api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - "ConnectionStrings__OrderingConnectionString=Server=orderdb;Database=OrderDb;User Id=sa;Password=Passw0rd23"
+      - "Identity__Key=qwertyuioplkjhgfdsazxcvbnmm123321sdfgsghjkghjkdfgsdfg"
+    depends_on:
+     - orderdb
+    ports:
+      - "8002:80"
+
+
+  account.api:
+    container_name: account.api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+       - "ConnectionStrings__AccountConnectionString=Server=orderdb;Database=AccountDb;User Id=sa;Password=Passw0rd23"
+      - "Identity__Key=qwertyuioplkjhgfdsazxcvbnmm123321sdfgsghjkghjkdfgsdfg"
+    ports:
+      - "8003:80"
+    depends_on:
+     - orderdb
+
