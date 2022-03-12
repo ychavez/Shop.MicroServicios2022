@@ -24,6 +24,7 @@ services:
     container_name: basket.api
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - "CacheSettings__ConnectionString=basketdb:6379"
     ports:
       - "8001:80"
     depends_on:
@@ -64,4 +65,12 @@ services:
       - "8003:80"
     depends_on:
      - orderdb
+
+
+  ocelotgateway:
+    container_name: ocelotgateway
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "8005:80"
 

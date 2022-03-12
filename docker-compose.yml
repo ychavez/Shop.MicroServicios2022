@@ -34,7 +34,14 @@ services:
       context: .
       dockerfile: Services/Account.Api/Dockerfile
 
+  ocelotgateway:
+    image: ${DOCKER_REGISTRY-}ocelotgateway
+    build:
+      context: .
+      dockerfile: Services/OcelotGateway/Dockerfile
+
 volumes:
   mongo_data:
+
 
 
